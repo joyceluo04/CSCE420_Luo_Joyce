@@ -9,6 +9,7 @@ class State {         //keeps track of the current state of stacks
   public:             
     vector <string> configuration;
     int heuristicscore;
+    int depth;
 };
 int num_stacks = 0;
 int num_blocks = 0;
@@ -40,7 +41,7 @@ int heuristicBottomPrefix(const vector<string>& cur, const vector<string>& goal)
     return h;
 }
 void successors(const vector<string> curr){
-    outsuccessors.clear();
+    //outsuccessors.clear();
     for (int from = 0; from < num_stacks; ++from) {
         if (curr[from].empty()) continue;     //current stack is empty
         const char topBlock = curr[from].back();     //grabs the top block
@@ -161,6 +162,7 @@ int main(int argc, char *argv[]) {
     //visited vector
     vector<State> visited;
     State current; 
+    current.depth = 1;                                                           //TODO fix the depth updating and make array of correct moves
     current.configuration = allstacks;   // start state
     visited.push_back(current);
 
