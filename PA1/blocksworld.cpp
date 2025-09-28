@@ -28,34 +28,49 @@ string goalstack3;
 string goalstack4;
 string goalstack5; 
 vector<string> allgoalstacks;
-int heuristicBottomPrefix(const vector<string>& cur, const vector<string>& goal) {
-    int h = 0;
-    size_t n = min(cur.size(), goal.size());
-    for (size_t i = 0; i < n; ++i) {
-        const string& cs = cur[i];
-        const string& gs = goal[i];
-        size_t k = 0; // length of common bottom-aligned prefix
-        while (k < cs.size() && k < gs.size() && cs[k] == gs[k]) ++k;
-        h += int(cs.size() - k); // blocks above the locked-in prefix
+int heuristicWrongBlocks(vector<string> curr, vector<string> goal) {
+    int score = 0;
+    //size_t n = min(cur.size(), goal.size());
+    for (int i = 0; i < num_stacks; ++i) {
+        string currstack = curr[i];
+        string currgoal = goal[i];
+        //number of correct blocks from table up
+        int correctnum = 0; 
+        while (correctnum < currstack.size() && correctnum < currgoal.size() && currstack[correctnum] == currgoal[correctnum]){
+            correctnum++;
+        }
+        //heuristic is added depending on how many blocks in the row are in the wrong spot vs how many are right
+        score = score + int(currstack.size() - correctnum); 
     }
-    return h;
+    return score;
 }
 void successors(const vector<string> curr){
-    //outsuccessors.clear();
-    for (int from = 0; from < num_stacks; ++from) {
-        if (curr[from].empty()) continue;     //current stack is empty
-        const char topBlock = curr[from].back();     //grabs the top block
+    //outsuccessors.clear(); 
+    //from is what column were taking the block from
+    //to is what column we moved it to
+    for (int from = 0; from < num_stacks; from++) {
+        if (curr[from]==""){
+            continue; //nothing to grab because the column is empty
+        }
+        //grabs the last char of the string which is the "top" block
+        char grabbedblock = curr[from].back();   
 
-        for (int to = 0; to < num_stacks; ++to) {
-            if (to == from) continue;                  //don't move the block onto the same column
-
+        for (int to = 0; to < num_stacks; to++) {
+            if (from == to){
+                //we cannot move the same block onto the same column, thats redundant
+                continue;
+            }
             State nextState;
-            nextState.configuration = curr;        // copy current config
-            nextState.configuration[from].pop_back();               // remove from source top
-            nextState.configuration[to].push_back(topBlock);        // push onto dest top
-            int hscore = heuristicBottomPrefix(curr, allgoalstacks);
-            nextState.heuristicscore = hscore;
-            outsuccessors.push_back({nextState}); //added a state into the total amount of successors
+            //set the current state in the State class object
+            nextState.configuration = curr; 
+            //grab the top block by popping the end of the string
+            nextState.configuration[from].pop_back(); 
+            //add the grabbed block to another column using push which adds to end of the string         
+            nextState.configuration[to].push_back(grabbedblock);    
+            //calculate the new heuristic score for the successor
+            nextState.heuristicscore = heuristicWrongBlocks(nextState.configuration,allgoalstacks);
+            //add the state into the queue
+            outsuccessors.push_back({nextState});
         }
     }
 }
@@ -149,7 +164,7 @@ bool checkGoalState(const vector<string>& curr){
     return true;
 }
 bool operator==(const State& a, const State& b) {
-    return a.configuration == b.configuration;
+    return a.configuration == b.configuration;                      //TODO fix boolean isVisited and change the find function?
 }
 bool isVisited(const State& s, const vector<State>& visited) {
     return find(visited.begin(), visited.end(), s) != visited.end();
@@ -174,8 +189,8 @@ int main(int argc, char *argv[]) {
         // 2) sort by heuristic (lowest first)
         sort(outsuccessors.begin(), outsuccessors.end(),
             [&](const State& a, const State& b) {
-                return heuristicBottomPrefix(a.configuration, allgoalstacks)
-                     < heuristicBottomPrefix(b.configuration, allgoalstacks);
+                return heuristicWrongBlocks(a.configuration, allgoalstacks)
+                     < heuristicWrongBlocks(b.configuration, allgoalstacks);
             });
 
         // 3) pick the best **unvisited** successor
@@ -189,13 +204,14 @@ int main(int argc, char *argv[]) {
 
                 cout << "Move #" << iters << "\n";
                 for (int s = 0; s < num_stacks; ++s) {
-                    cout << current.configuration[s] << "\n";
+                    cout << current.configuration[s] << "\n";            //TODO: fix the depth and print the solution out correctly
                 }
                 cout << "\n";
 
                 // goal check
                 if (checkGoalState(current.configuration)) {
                     cout << "Goal reached in " << iters << " iterations.\n";
+                                                                           //TODO print out statistics, solution length, iterations, max queue size
                     return 0;
                 }
 
@@ -213,4 +229,3 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
-
