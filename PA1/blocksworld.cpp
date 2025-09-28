@@ -3,7 +3,13 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include<algorithm>
 using namespace std;
+class State {         //keeps track of the current state of stacks
+  public:             
+    vector <string> configuration;
+    int heuristicscore;
+};
 int num_stacks = 0;
 int num_blocks = 0;
 int num_moves = 0;
@@ -20,13 +26,26 @@ string goalstack3;
 string goalstack4;
 string goalstack5; 
 vector<string> allgoalstacks;
-class State {         //
-  public:             // Access specifier
-    int myNum;        // Attribute (int variable)
-    string myString;  // Attribute (string variable)
-    vector <string> configuration;
-};
-void blocksworld(const string &filename) {
+void successors(const vector<string> curr){
+    outsuccessors.clear();
+    for (int from = 0; from < num_stacks; ++from) {
+        if (curr[from].empty()) continue;     //current stack is empty
+        const char topBlock = curr[from].back();     //grabs the top block
+
+        for (int to = 0; to < num_stacks; ++to) {
+            if (to == from) continue;                  //don't move the block onto the same column
+
+            State nextState;
+            nextState.configuration = curr;        // copy current config
+            nextState.configuration[from].pop_back();               // remove from source top
+            nextState.configuration[to].push_back(topBlock);        // push onto dest top
+            int hscore = heuristicBottomPrefix(curr, allgoalstacks);
+            nextState.heuristicscore = hscore;
+            outsuccessors.push_back({nextState}); //added a state into the total amount of successors
+        }
+    }
+}
+void readfile(const string &filename) {
     cout << "Problem # file: " << filename << endl;
 
     ifstream in(filename);
@@ -44,7 +63,6 @@ void blocksworld(const string &filename) {
                 cout<< "Invalid file"<< endl;
                 break;
             }
-            cout<< num_stacks<< num_blocks<< num_moves;
         }
         //reading in the initial stacks for 3 columns
         if(linecount == 2 && num_stacks==3){
@@ -105,32 +123,45 @@ void blocksworld(const string &filename) {
         linecount++;
     }
     cout << "File read completed." << endl;
-    //generate successors now
-//successor here
 }
-void successors(const vector<vector<char>> curr){
-    outsuccessors.clear();
-    for (int from = 0; from < num_stacks; ++from) {
-        if (curr[from].empty()) continue;            // nothing to move
-
-        const char topBlock = curr[from].back();     // block on top of 'from'
-
-        for (int to = 0; to < num_stacks; ++to) {
-            if (to == from) continue;                  // no self-move
-
-            State nextState;
-            nextState.allstacks = curr;        // copy current config
-            nextState.allstacks[from].pop_back();               // remove from source top
-            nextState.allstacks[to].push_back(topBlock);        // push onto dest top
-
-            outsuccessors.push_back({nextState});
+int heuristicBottomPrefix(const vector<string>& cur, const vector<string>& goal) {
+    int h = 0;
+    size_t n = min(cur.size(), goal.size());
+    for (size_t i = 0; i < n; ++i) {
+        const string& cs = cur[i];
+        const string& gs = goal[i];
+        size_t k = 0; // length of common bottom-aligned prefix
+        while (k < cs.size() && k < gs.size() && cs[k] == gs[k]) ++k;
+        h += int(cs.size() - k); // blocks above the locked-in prefix
+    }
+    return h;
+}
+bool checkGoalState(const vector<string>& curr){
+    for(int i=0; i<num_stacks; i++){
+        if(curr[i] != allgoalstacks[i]){
+            return false;
         }
     }
+    return true;
 }
 // --- Program entry point ---
 int main(int argc, char *argv[]) {
 
     string filename = argv[1];
-    blocksworld(filename);
-    return 0;
+    readfile(filename);
+    //find successors after initializing start/goal states
+    successors(allstacks);
+    int iters = 0;
+    while(iters<15000){
+        //sort successors from best to worst heuristic score
+        sort(outsuccessors.begin(), outsuccessors.end(),
+        [&](const State& a, const State& b){
+         return heuristicBottomPrefix(a.configuration, allgoalstacks)
+              < heuristicBottomPrefix(b.configuration, allgoalstacks);
+        });
+        //pick the best one at the front of the vector
+        //run successors again
+        //keep going until we find goal state
+    }
 }
+
