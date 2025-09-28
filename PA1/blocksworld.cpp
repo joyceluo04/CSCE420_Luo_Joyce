@@ -16,6 +16,7 @@ class State {         //keeps track of the current state of stacks
 int num_stacks = 0;
 int num_blocks = 0;
 int num_moves = 0;
+int max_queue_size = 0;
 string stack1;
 string stack2;
 string stack3;
@@ -87,6 +88,10 @@ void successors(State* curr){
             nextState.fn = nextState.depth + nextState.heuristicscore;
             //add the state into the queue
             outsuccessors.push_back({nextState});
+            //track max queue size here
+            if(outsuccessors.size()>max_queue_size){
+                max_queue_size = outsuccessors.size();
+            }
         }
     }
 }
@@ -227,39 +232,27 @@ int main(int argc, char *argv[]) {
 
                 // goal check
                 if (checkGoalState(current.configuration)) {
-                    cout << "Goal reached in " << iters << " iterations.\n";
+                    //TODO print out statistics, solution length, iterations, max queue size
                     int parentidx = current.parentidx;
                     vector <State> path;
+                    path.push_back(current);
                     while(parentidx != -1){
                         path.push_back(parents[parentidx]);
                         parentidx = parents[parentidx].parentidx;
                     }
                     reverse(path.begin(), path.end());
+                    int movenum = 1;
                     for(State x: path){
+                        //my heuristic score is slightly odd sometimes because of negative + positive scores of each stack in the configuration, it may show as 0
+                        cout<< "Move # " << movenum << "  Path cost: "<< movenum<< "  Heuristic: "<< x.heuristicscore<< "  f(n) = g(n)+h(n) = "<< x.fn << endl;
                             for (int i = 0; i<num_stacks; i++) {
                             cout<< x.configuration[i]<< endl;
                         }
                         cout<<endl;
+                        movenum++;
                     }
-                    //TODO print out statistics, solution length, iterations, max queue size
-                    /*vector<const State> path;
-                    const State* q = &current;
-                    while (q!= nullptr) {                // includes root; stops when parent == nullptr
-                        path.push_back(*q);
-                        q = q->parent;
-                    }
-                    reverse(path.begin(), path.end());
-
-                    // Print
-                    for (size_t i = 0; i < path.size(); ++i) {
-                        cout << "Move #" << i
-                            << "  Depth=" << path[i].depth
-                            << "  f(n)=" << path[i].fn << "\n";
-                        for (const auto& stack : path[i].configuration) {
-                            cout << stack << "\n";
-                        }
-                        cout << "----\n";
-                    }*/
+                    //the cost is the path size and how many moves we made, the depth is how deep we searched into the successors to find the goal node
+                    cout <<"Solution Reached. " "# Iterations: " << iters << " Cost:  "<< path.size() << "  Depth: "<< current.depth<< "  Max queue size: "<< max_queue_size<< endl;
                     return 0;
                 }
 
