@@ -8,7 +8,7 @@ using namespace std;
 class State {         //keeps track of the current state of stacks
   public:             
     vector <string> configuration;
-    State* parent;
+    int parentidx;
     int heuristicscore;
     int depth;
     int fn;
@@ -23,6 +23,7 @@ string stack4;
 string stack5;
 vector<string> allstacks;
 vector<State> outsuccessors;
+vector<State> parents;
 vector<State> solution;
 vector<State> visited;
 string goalstack1;
@@ -48,15 +49,15 @@ int heuristicWrongBlocks(vector<string> curr, vector<string> goal) {
     }
     return score;
 }
-void successors(State curr){
+void successors(State* curr){
     //from is what column were taking the block from
     //to is what column we moved it to
     for (int from = 0; from < num_stacks; from++) {
-        if (curr.configuration[from]==""){
+        if (curr->configuration[from]==""){
             continue; //nothing to grab because the column is empty
         }
         //grabs the last char of the string which is the "top" block
-        char grabbedblock = curr.configuration[from].back();   
+        char grabbedblock = curr->configuration[from].back();   
 
         for (int to = 0; to < num_stacks; to++) {
             if (from == to){
@@ -65,13 +66,16 @@ void successors(State curr){
             }
             State nextState;
             //set the current state in the State class object
-            nextState.configuration = curr.configuration;
-            nextState.depth = curr.depth + 1; 
-            if(nextState.depth = 1){
-                nextState.parent = nullptr;
+            nextState.configuration = curr->configuration;
+            if(nextState.depth == 0){
+                nextState.parentidx = -1;
+            }
+            else if (nextState.depth == 1){
+                nextState.parentidx = 0;
             }
             else{
-                nextState.parent = &curr;
+                parents.push_back(*curr);
+                nextState.parentidx = parents.size()-1;             //todo fix
             }
             //grab the top block by popping the end of the string
             nextState.configuration[from].pop_back(); 
@@ -79,6 +83,7 @@ void successors(State curr){
             nextState.configuration[to].push_back(grabbedblock);    
             //calculate the new heuristic score for the successor
             nextState.heuristicscore = heuristicWrongBlocks(nextState.configuration,allgoalstacks);
+            nextState.depth = curr->depth + 1; 
             nextState.fn = nextState.depth + nextState.heuristicscore;
             //add the state into the queue
             outsuccessors.push_back({nextState});
@@ -190,13 +195,14 @@ int main(int argc, char *argv[]) {
     State current; 
     current.depth = 0;                                                           //TODO fix the depth updating and make array of correct moves
     current.configuration = allstacks;
-    current.parent = nullptr;
+    current.parentidx = -1;
     visited.push_back(current);
+    parents.push_back(current);
 
     int iters = 1;
     while (iters < 15000) {
         //generate successors into outsuccessors vector (which is our priority queue)
-        successors(current);  
+        successors(&current);  
         //now sort the priority queue by lowest heuristic score
         sort(outsuccessors.begin(), outsuccessors.end(),
             [&](const State& a, const State& b) {
@@ -222,20 +228,38 @@ int main(int argc, char *argv[]) {
                 // goal check
                 if (checkGoalState(current.configuration)) {
                     cout << "Goal reached in " << iters << " iterations.\n";
-                    //TODO print out statistics, solution length, iterations, max queue size
-                    vector<const State*> path;
-                    for (const State* p = &current; p!= nullptr; p = p->parent){
-                        cout << "hello";       //TODO fix infinite loop
-                        path.push_back(p);
+                    int parentidx = current.parentidx;
+                    vector <State> path;
+                    while(parentidx != -1){
+                        path.push_back(parents[parentidx]);
+                        parentidx = parents[parentidx].parentidx;
                     }
                     reverse(path.begin(), path.end());
-                    for (size_t step = 0; step < path.size(); ++step) {
-                        cout << "Move #" << step << " Depth =" << path[step]->depth << " f(n) = g(n)+h(n) = "<< path[step]->fn<< endl;
-                        for (size_t s = 0; s < path[step]->configuration.size(); ++s) {
-                            cout << path[step]->configuration[s] << endl;
+                    for(State x: path){
+                            for (int i = 0; i<num_stacks; i++) {
+                            cout<< x.configuration[i]<< endl;
                         }
-                        cout << endl;
+                        cout<<endl;
                     }
+                    //TODO print out statistics, solution length, iterations, max queue size
+                    /*vector<const State> path;
+                    const State* q = &current;
+                    while (q!= nullptr) {                // includes root; stops when parent == nullptr
+                        path.push_back(*q);
+                        q = q->parent;
+                    }
+                    reverse(path.begin(), path.end());
+
+                    // Print
+                    for (size_t i = 0; i < path.size(); ++i) {
+                        cout << "Move #" << i
+                            << "  Depth=" << path[i].depth
+                            << "  f(n)=" << path[i].fn << "\n";
+                        for (const auto& stack : path[i].configuration) {
+                            cout << stack << "\n";
+                        }
+                        cout << "----\n";
+                    }*/
                     return 0;
                 }
 
