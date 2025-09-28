@@ -20,6 +20,7 @@ string stack4;
 string stack5;
 vector<string> allstacks;
 vector<State> outsuccessors;
+vector<State> visited;
 string goalstack1;
 string goalstack2;
 string goalstack3;
@@ -146,36 +147,68 @@ bool checkGoalState(const vector<string>& curr){
     }
     return true;
 }
+bool operator==(const State& a, const State& b) {
+    return a.configuration == b.configuration;
+}
+bool isVisited(const State& s, const vector<State>& visited) {
+    return find(visited.begin(), visited.end(), s) != visited.end();
+}
 // --- Program entry point ---
 int main(int argc, char *argv[]) {
 
     string filename = argv[1];
     readfile(filename);
-    //find successors after initializing start/goal states
-    successors(allstacks);
-    int iters = 0;
-    while(iters<15000){
-        //sort successors from best to worst heuristic score
+    //visited vector
+    vector<State> visited;
+    State current; 
+    current.configuration = allstacks;   // start state
+    visited.push_back(current);
+
+    int iters = 1;
+    while (iters < 15000) {
+        // 1) expand current
+        successors(current.configuration);   // -> fills outsuccessors (ensure it clears first!)
+
+        // 2) sort by heuristic (lowest first)
         sort(outsuccessors.begin(), outsuccessors.end(),
-        [&](const State& a, const State& b){
-         return heuristicBottomPrefix(a.configuration, allgoalstacks)
-              < heuristicBottomPrefix(b.configuration, allgoalstacks);
-        });
-        for(int i = 0; i<num_stacks; i++){
-                cout<< outsuccessors[0].configuration[i]<< endl;
-        }
-        //check if we are at goal
-        if(checkGoalState(outsuccessors[0].configuration)==true){
-            cout<< "yay were done";
-            break;
-        }
-        else{
-            successors(outsuccessors[0].configuration);
+            [&](const State& a, const State& b) {
+                return heuristicBottomPrefix(a.configuration, allgoalstacks)
+                     < heuristicBottomPrefix(b.configuration, allgoalstacks);
+            });
+
+        // 3) pick the best **unvisited** successor
+        bool advanced = false;
+        for (size_t i = 0; i < outsuccessors.size(); ++i) {
+            const State& cand = outsuccessors[i];
+            if (!isVisited(cand, visited)) {
+                // Update current to the chosen child
+                current = cand;
+                visited.push_back(current);
+
+                cout << "Move #" << iters << "\n";
+                for (int s = 0; s < num_stacks; ++s) {
+                    cout << current.configuration[s] << "\n";
+                }
+                cout << "\n";
+
+                // goal check
+                if (checkGoalState(current.configuration)) {
+                    cout << "Goal reached in " << iters << " iterations.\n";
+                    return 0;
+                }
+
+                advanced = true;
+                break;  // IMPORTANT: break so we don’t keep looking this layer
+            }
         }
 
-        //pick the best one at the front of the vector
-        //run successors again
-        //keep going until we find goal state
+        if (!advanced) {
+            cout << "All successors already visited at iteration " << iters << ".\n";
+            break;
+        }
+
+        ++iters;
     }
+    return 0;
 }
 
