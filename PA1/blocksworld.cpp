@@ -26,6 +26,18 @@ string goalstack3;
 string goalstack4;
 string goalstack5; 
 vector<string> allgoalstacks;
+int heuristicBottomPrefix(const vector<string>& cur, const vector<string>& goal) {
+    int h = 0;
+    size_t n = min(cur.size(), goal.size());
+    for (size_t i = 0; i < n; ++i) {
+        const string& cs = cur[i];
+        const string& gs = goal[i];
+        size_t k = 0; // length of common bottom-aligned prefix
+        while (k < cs.size() && k < gs.size() && cs[k] == gs[k]) ++k;
+        h += int(cs.size() - k); // blocks above the locked-in prefix
+    }
+    return h;
+}
 void successors(const vector<string> curr){
     outsuccessors.clear();
     for (int from = 0; from < num_stacks; ++from) {
@@ -124,22 +136,12 @@ void readfile(const string &filename) {
     }
     cout << "File read completed." << endl;
 }
-int heuristicBottomPrefix(const vector<string>& cur, const vector<string>& goal) {
-    int h = 0;
-    size_t n = min(cur.size(), goal.size());
-    for (size_t i = 0; i < n; ++i) {
-        const string& cs = cur[i];
-        const string& gs = goal[i];
-        size_t k = 0; // length of common bottom-aligned prefix
-        while (k < cs.size() && k < gs.size() && cs[k] == gs[k]) ++k;
-        h += int(cs.size() - k); // blocks above the locked-in prefix
-    }
-    return h;
-}
+
 bool checkGoalState(const vector<string>& curr){
     for(int i=0; i<num_stacks; i++){
         if(curr[i] != allgoalstacks[i]){
             return false;
+            break;
         }
     }
     return true;
@@ -159,6 +161,17 @@ int main(int argc, char *argv[]) {
          return heuristicBottomPrefix(a.configuration, allgoalstacks)
               < heuristicBottomPrefix(b.configuration, allgoalstacks);
         });
+        if(checkGoalState(outsuccessors[0].configuration)==true){
+            for(State x: outsuccessors){
+                for(int i = 0; i<num_stacks; i++){
+                    cout<< x.configuration[i]<< endl;
+                }
+            }
+        }
+        else{
+            successors(outsuccessors[0].configuration);
+        }
+
         //pick the best one at the front of the vector
         //run successors again
         //keep going until we find goal state
