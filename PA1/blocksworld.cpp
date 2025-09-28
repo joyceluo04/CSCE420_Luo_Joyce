@@ -161,12 +161,13 @@ int main(int argc, char *argv[]) {
          return heuristicBottomPrefix(a.configuration, allgoalstacks)
               < heuristicBottomPrefix(b.configuration, allgoalstacks);
         });
+        for(int i = 0; i<num_stacks; i++){
+                cout<< outsuccessors[0].configuration[i]<< endl;
+        }
+        //check if we are at goal
         if(checkGoalState(outsuccessors[0].configuration)==true){
-            for(State x: outsuccessors){
-                for(int i = 0; i<num_stacks; i++){
-                    cout<< x.configuration[i]<< endl;
-                }
-            }
+            cout<< "yay were done";
+            break;
         }
         else{
             successors(outsuccessors[0].configuration);
