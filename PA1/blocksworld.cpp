@@ -16,7 +16,7 @@ class State {         //keeps track of the current state of stacks
 int num_stacks = 0;
 int num_blocks = 0;
 int num_moves = 0;
-int max_queue_size = 0;
+long unsigned int max_queue_size = 0;
 string stack1;
 string stack2;
 string stack3;
@@ -40,7 +40,7 @@ int heuristicWrongBlocks(vector<string> curr, vector<string> goal) {
         string currstack = curr[i];
         string currgoal = goal[i];
         //number of correct blocks from table up
-        int correctnum = 0; 
+        long unsigned int correctnum = 0; 
         while (correctnum < currstack.size() && correctnum < currgoal.size() && currstack[correctnum] == currgoal[correctnum]){
             correctnum++;
         }
@@ -59,15 +59,16 @@ void successors(State* curr){
         }
         //grabs the last char of the string which is the "top" block
         char grabbedblock = curr->configuration[from].back();   
-
+        //run through all the possible block moves with the grabbed block
         for (int to = 0; to < num_stacks; to++) {
             if (from == to){
                 //we cannot move the same block onto the same column, thats redundant
                 continue;
             }
+            //creates and updates the details for the successor State
             State nextState;
-            //set the current state in the State class object
             nextState.configuration = curr->configuration;
+            //if we are at depth 0, then this is the parent node
             if(nextState.depth == 0){
                 nextState.parentidx = -1;
             }
@@ -241,7 +242,7 @@ int main(int argc, char *argv[]) {
                         parentidx = parents[parentidx].parentidx;
                     }
                     reverse(path.begin(), path.end());
-                    int movenum = 1;
+                    int movenum = 0;
                     for(State x: path){
                         //my heuristic score is slightly odd sometimes because of negative + positive scores of each stack in the configuration, it may show as 0
                         cout<< "Move # " << movenum << "  Path cost: "<< movenum<< "  Heuristic: "<< x.heuristicscore<< "  f(n) = g(n)+h(n) = "<< x.fn << endl;
