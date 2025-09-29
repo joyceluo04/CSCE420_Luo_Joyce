@@ -10,8 +10,38 @@ statistics: probA10.bwp method BFS planlen 10 iter 2401 maxq 10398
 statistics: probA11.bwp method BFS planlen 11 iter 2360 maxq 10258
 
 statistics: probB03.bwp method BFS planlen 3 iter 536 maxq 8564
-
 ...BFS fails to run in a feasible amount of time for problemB04-problemB20.
+
+Heuristic description: 
+my heuristic is named "heuristicWrongBlocks" in my blocksworld.cpp file. This heuristic works by finding the amount of blocks that are in the correct
+order for each stack in the configuration and taking the difference relative to the size of the current stack. The total heuristic score is the total of all (size - # correct substack blocks) for
+each stack.
+Here is example #1's goal state:
+AIJ
+CE
+FGH
+
+DB
+Here is example #1 state:
+AIJH   (size - #correct blocks = 4-3 = 1)
+C      (size - #correct blocks = 1-1 = 0)
+F      (size - #correct blocks = 1-1 = 0)
+E      (size - # correct blocks = 1-0 = 1)
+DBG    (size - # of correct blocks = 3-2 = 1)
+*The total heuristic score of this state would be 1+1+1=3 which essentially details the amount of blocks in each stack that are out of place
+Here is example #2's goal state:
+BE
+
+
+
+GJHFACDI
+Here is example #2 state: score of 5
+I      (size - #correct blocks = 1-0 = 1)
+D      (size - #correct blocks = 1-0 = 1)
+BCE    (size - #correct blocks = 3-0 = 3)
+       (size - #correct blocks = 0-0 = 0)
+GJHFA  (size - #correct blocks = 5-5 = 0)
+*The total heuristic score of this state would be 1+1+3= 5
 
 Results using my heuristic in A* search:
 statistics: probA03.bwp method Astar planlen 3 iter 3 maxq 16
