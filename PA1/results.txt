@@ -15,7 +15,7 @@ statistics: probB03.bwp method BFS planlen 3 iter 536 maxq 8564
 Heuristic description: 
 my heuristic is named "heuristicWrongBlocks" in my blocksworld.cpp file. This heuristic works by finding the amount of blocks that are in the correct
 order for each stack in the configuration and taking the difference relative to the size of the current stack. The total heuristic score is the total of all (size - # correct substack blocks) for
-each stack.
+each stack. This heuristic is significantly more effective than counting how many blocks are in the right location because it checks for a substack that must all be in the correct order.
 Here is example #1's goal state:
 AIJ
 CE
