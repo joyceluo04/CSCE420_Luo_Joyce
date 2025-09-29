@@ -1,0 +1,44 @@
+Results using BFS:
+statistics: probA03.bwp method BFS planlen 3 iter 63 maxq 288
+statistics: probA04.bwp method BFS planlen 4 iter 149 maxq 678
+statistics: probA05.bwp method BFS planlen 5 iter 274 maxq 1242
+statistics: probA06.bwp method BFS planlen 6 iter 411 maxq 1848
+statistics: probA07.bwp method BFS planlen 7 iter 890 maxq 3966
+statistics: probA08.bwp method BFS planlen 8 iter 1466 maxq 6464
+statistics: probA09.bwp method BFS planlen 9 iter 1958 maxq 8516
+statistics: probA10.bwp method BFS planlen 10 iter 2401 maxq 10398
+statistics: probA11.bwp method BFS planlen 11 iter 2360 maxq 10258
+
+statistics: probB03.bwp method BFS planlen 3 iter 536 maxq 8564
+
+...BFS fails to run in a feasible amount of time for problemB04-problemB20.
+
+Results using my heuristic in A* search:
+statistics: probA03.bwp method Astar planlen 3 iter 3 maxq 16
+statistics: probA04.bwp method Astar planlen 4 iter 8 maxq 40
+statistics: probA05.bwp method Astar planlen 5 iter 8 maxq 42
+statistics: probA06.bwp method Astar planlen 6 iter 27 maxq 130
+statistics: probA07.bwp method Astar planlen 7 iter 37 maxq 182
+statistics: probA08.bwp method Astar planlen 8 iter 63 maxq 302
+statistics: probA09.bwp method Astar planlen 9 iter 205 maxq 938
+statistics: probA10.bwp method Astar planlen 10 iter 395 maxq 1802
+statistics: probA11.bwp method Astar planlen 11 iter 458 maxq 2112
+
+statistics: probB03.bwp method Astar planlen 3 iter 3 maxq 48
+statistics: probB04.bwp method Astar planlen 4 iter 4 maxq 76
+statistics: probB05.bwp method Astar planlen 5 iter 5 maxq 92
+statistics: probB06.bwp method Astar planlen 6 iter 6 maxq 96
+statistics: probB07.bwp method Astar planlen 7 iter 9 maxq 152
+statistics: probB08.bwp method Astar planlen 8 iter 9 maxq 144
+statistics: probB09.bwp method Astar planlen 9 iter 12 maxq 184
+statistics: probB10.bwp method Astar planlen 10 iter 9 maxq 160
+statistics: probB11.bwp method Astar planlen 11 iter 10 maxq 156
+statistics: probB12.bwp method Astar planlen 12 iter 9 maxq 172
+statistics: probB13.bwp method Astar planlen 13 iter 29 maxq 476
+statistics: probB14.bwp method Astar planlen 14 iter 79 maxq 1272
+statistics: probB15.bwp method Astar planlen 15 iter 25 maxq 468
+statistics: probB16.bwp method Astar planlen 16 iter 40 maxq 612
+statistics: probB17.bwp method Astar planlen 17 iter 95 maxq 1572
+statistics: probB18.bwp method Astar planlen 18 iter 34 maxq 564
+statistics: probB19.bwp method Astar planlen 19 iter 90 maxq 1420
+statistics: probB20.bwp method Astar planlen 20 iter 48 maxq 780
