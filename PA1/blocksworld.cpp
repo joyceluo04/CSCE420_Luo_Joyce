@@ -42,7 +42,14 @@ int heuristicWrongBlocks(vector<string> curr, vector<string> goal) {
     int score = 0;  //score tracks our heuristic score
     for (int i = 0; i < num_stacks; i++) {
         long unsigned int correctnum = 0; 
-        while (correctnum < curr[i].size() && correctnum < goal[i].size() && curr[i][correctnum] == goal[i][correctnum]){
+        long unsigned int maxsize;
+        if(curr[i].size()>goal[i].size()){
+            maxsize = goal[i].size();
+        }
+        else{
+            maxsize = curr[i].size();
+        }
+        while (correctnum < maxsize && curr[i][correctnum] == goal[i][correctnum]){
             correctnum++;
         }
         //heuristic is added depending on how many blocks in the stack are in the wrong spot vs how many are right
