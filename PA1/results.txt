@@ -45,14 +45,14 @@ GJHFA  (size - #correct blocks = 5-5 = 0)
 
 Results using my heuristic in A* search:
 statistics: probA03.bwp method Astar planlen 3 iter 3 maxq 16
-statistics: probA04.bwp method Astar planlen 4 iter 8 maxq 40
-statistics: probA05.bwp method Astar planlen 5 iter 8 maxq 42
-statistics: probA06.bwp method Astar planlen 6 iter 27 maxq 130
-statistics: probA07.bwp method Astar planlen 7 iter 37 maxq 182
-statistics: probA08.bwp method Astar planlen 8 iter 63 maxq 302
-statistics: probA09.bwp method Astar planlen 9 iter 205 maxq 938
-statistics: probA10.bwp method Astar planlen 10 iter 395 maxq 1802
-statistics: probA11.bwp method Astar planlen 11 iter 458 maxq 2112
+statistics: probA04.bwp method Astar planlen 4 iter 5 maxq 24
+statistics: probA05.bwp method Astar planlen 5 iter 6 maxq 32
+statistics: probA06.bwp method Astar planlen 6 iter 11 maxq 54
+statistics: probA07.bwp method Astar planlen 7 iter 20 maxq 106
+statistics: probA08.bwp method Astar planlen 8 iter 19 maxq 92
+statistics: probA09.bwp method Astar planlen 9 iter 16 maxq 78
+statistics: probA10.bwp method Astar planlen 10 iter 35 maxq 178
+statistics: probA11.bwp method Astar planlen 11 iter 23 maxq 110
 
 statistics: probB03.bwp method Astar planlen 3 iter 3 maxq 48
 statistics: probB04.bwp method Astar planlen 4 iter 4 maxq 76
