@@ -5,7 +5,8 @@
 #include <vector>
 #include<algorithm>
 using namespace std;
-class State {         //keeps track of the current state of stacks
+//State class keeps track of each configuration's stacks, heuristic score, parent, depth, and fn score
+class State {         
   public:             
     vector <string> configuration;
     int parentidx;
@@ -16,13 +17,13 @@ class State {         //keeps track of the current state of stacks
 int num_stacks = 0;
 int num_blocks = 0;
 int num_moves = 0;
+string functionchoice;
 long unsigned int max_queue_size = 0;
 string stack1;
 string stack2;
 string stack3;
 string stack4;
 string stack5;
-vector<string> allstacks;
 vector<State> outsuccessors;
 vector<State> parents;
 vector<State> solution;
@@ -32,23 +33,26 @@ string goalstack2;
 string goalstack3;
 string goalstack4;
 string goalstack5; 
+//allstacks stores the current configurations stacks in a string vector (subject to change)
+//allgoalstacks stores the goal configuration stacks in a string vector (not subject to change)
+vector<string> allstacks;
 vector<string> allgoalstacks;
+//Function heuristicWrongBlocks: calculates how many blocks in each stack are in right order and adds it together to get an hscore
 int heuristicWrongBlocks(vector<string> curr, vector<string> goal) {
-    int score = 0;
-    //size_t n = min(cur.size(), goal.size());
-    for (int i = 0; i < num_stacks; ++i) {
-        string currstack = curr[i];
-        string currgoal = goal[i];
-        //number of correct blocks from table up
+    int score = 0;  //score tracks our heuristic score
+    for (int i = 0; i < num_stacks; i++) {
         long unsigned int correctnum = 0; 
-        while (correctnum < currstack.size() && correctnum < currgoal.size() && currstack[correctnum] == currgoal[correctnum]){
+        while (correctnum < curr[i].size() && correctnum < goal[i].size() && curr[i][correctnum] == goal[i][correctnum]){
             correctnum++;
         }
-        //heuristic is added depending on how many blocks in the row are in the wrong spot vs how many are right
+        //heuristic is added depending on how many blocks in the stack are in the wrong spot vs how many are right
         //the bigger the hscore, the more off we are from the solution
-        score = score + int(currstack.size() - correctnum); 
+        score = score + (curr[i].size() - correctnum); 
     }
     return score;
+}
+int bfs(vector<string> curr, vector<string> goal){
+    return 0; //bfs only cares about path depth, heuristic returns 0, queue sorts by depth
 }
 void successors(State* curr){
     //from is what column were taking the block from
@@ -68,54 +72,69 @@ void successors(State* curr){
             //creates and updates the details for the successor State
             State nextState;
             nextState.configuration = curr->configuration;
-            //if we are at depth 0, then this is the parent node
+            //if we are at depth 0, then this is the parent node, there is no parent index so we set it to -1
             if(nextState.depth == 0){
                 nextState.parentidx = -1;
             }
+            //if the depth is 1 then the parent is the initial stack configuration, which was the first state pushed into the parents vector
             else if (nextState.depth == 1){
                 nextState.parentidx = 0;
             }
             else{
+                //push back the parent and assign the successors parentidx to the last idx of the vector which is size()-1
                 parents.push_back(*curr);
-                nextState.parentidx = parents.size()-1;             //todo fix
+                nextState.parentidx = parents.size()-1;          
             }
             //grab the top block by popping the end of the string
             nextState.configuration[from].pop_back(); 
             //add the grabbed block to another column using push which adds to end of the string         
             nextState.configuration[to].push_back(grabbedblock);    
             //calculate the new heuristic score for the successor
-            nextState.heuristicscore = heuristicWrongBlocks(nextState.configuration,allgoalstacks);
+            if(functionchoice=="bfs"){
+                //bfs "heuristic" score is just 0
+                nextState.heuristicscore = bfs(nextState.configuration, allgoalstacks);
+            }
+            else{
+                //set the heuristic score by running it through the function with the current stacks and the goal stacks for reference
+                nextState.heuristicscore = heuristicWrongBlocks(nextState.configuration,allgoalstacks);
+            }
+
+            //add one layer of depth for the successor state
             nextState.depth = curr->depth + 1; 
+            //fn score is depth(cost)+hscore = total score
             nextState.fn = nextState.depth + nextState.heuristicscore;
-            //add the state into the queue
-            outsuccessors.push_back({nextState});
-            //track max queue size here
+            //add the successor state into the priority queue
+            outsuccessors.push_back(nextState);
+            //track max queue size
             if(outsuccessors.size()>max_queue_size){
                 max_queue_size = outsuccessors.size();
             }
         }
     }
 }
+//Function readfile: reads in the problem bwp file and initializes the stacks/goal
 void readfile(const string &filename) {
-    cout << "Problem # file: " << filename << endl;
-
+    cout << "File: " << filename << endl;
+    //error handling in case the problem file is wrong
     ifstream in(filename);
     if (!in) {
-        cerr << "Error: could not open " << filename << endl;
+        cerr << "Error occured while reading " << filename << endl;
         return;
     }
 
     string line;
     int linecount = 0; 
-    while (getline(in, line)) { //simple parser to read
+    //while loop reads line by line
+    while (getline(in, line)){
+        //initializes num_stacks, num_blocks, and num_moves using the first line of information
         if (linecount == 0){
             std::istringstream iss(line);
             if (!(iss >> num_stacks >> num_blocks >> num_moves)) {
-                cout<< "Invalid file"<< endl;
+                cout<< "Invalid file format"<< endl;  //throws error if the numbers didn't populate correctly
                 break;
             }
         }
-        //reading in the initial stacks for 3 columns
+        //reading in the initial stacks for 3 columns (this is done in a rudimentary way/hardcoded)
         if(linecount == 2 && num_stacks==3){
             stack1 = line;
         }
@@ -124,6 +143,7 @@ void readfile(const string &filename) {
         }
         if(linecount == 4 && num_stacks==3){
             stack3 = line;
+            //initializes all the stacks after reading 3 lines
             allstacks = {stack1, stack2, stack3};
         }
         //reading in the goal stacks for 3 columns
@@ -186,22 +206,36 @@ bool checkGoalState(const vector<string>& curr){
     return true;
 }
 bool operator==(const State& a, const State& b) {
-    return a.configuration == b.configuration;                      //TODO fix boolean isVisited and change the find function?
+    //helper operator overload to check if two states configurations are equal to eachother 
+    return a.configuration == b.configuration;                    
 }
+//Function isVisited takes in the successor state we want to search and returns whether or not it has been visited inside the visited vector
 bool isVisited(const State& s, const vector<State>& visited) {
+    //could improve by deleting from visited if we have seen the state before
     return find(visited.begin(), visited.end(), s) != visited.end();
 }
 int main(int argc, char *argv[]) {
 
     string filename = argv[1];
+    functionchoice = argv[2];
+    if(functionchoice=="h0"){
+        functionchoice = "bfs";
+    }
+    else if(functionchoice=="h1"){
+        functionchoice = "heuristic";
+    }
+    else{
+        cout<< "Error: Choose either h0 BFS or h1 heuristic."<< endl;
+    }
     readfile(filename);
     //visited vector
     vector<State> visited;
     //initialize our first state with the given problem stacks
     State current; 
-    current.depth = 0;                                                           //TODO fix the depth updating and make array of correct moves
+    current.depth = 0;                                                           
     current.configuration = allstacks;
     current.parentidx = -1;
+    //track our initial start stack as visited and push back the initial state as parents[0] which will be set as the parent of any node with a depth of 1
     visited.push_back(current);
     parents.push_back(current);
 
@@ -210,37 +244,37 @@ int main(int argc, char *argv[]) {
         //generate successors into outsuccessors vector (which is our priority queue)
         successors(&current);  
         //now sort the priority queue by lowest heuristic score
-        sort(outsuccessors.begin(), outsuccessors.end(),
-            [&](const State& a, const State& b) {
-                return heuristicWrongBlocks(a.configuration, allgoalstacks)
-                     < heuristicWrongBlocks(b.configuration, allgoalstacks);
+        //todo sort differently based on heuristic or bfs
+        if(functionchoice == "bfs"){
+            sort(outsuccessors.begin(), outsuccessors.end(), [&](const State& a, const State& b) {
+                return (bfs(a.configuration, allgoalstacks)+a.depth) < (bfs(b.configuration, allgoalstacks)+b.depth);
+            });  
+        }
+        else{
+            sort(outsuccessors.begin(), outsuccessors.end(), [&](const State& a, const State& b) {
+                    return (heuristicWrongBlocks(a.configuration, allgoalstacks)) < (heuristicWrongBlocks(b.configuration, allgoalstacks));
             });
-
+        }
+        //loop through outsuccessors until we find a node that hasn't been visited
         for (size_t i = 0; i < outsuccessors.size(); ++i) {
             const State& newNode = outsuccessors[i];
-            if (!isVisited(newNode, visited)) {
+            if (isVisited(newNode, visited) != true) {
                 //we go forward with the chosen node
                 current = newNode;
                 //track the chosen node in current
                 visited.push_back(current);
-                //todo add the node into the solution vector and delete any other nodes from prior depths explored in the tree
-
-                /*cout << "Move #" << iters << " Depth of "<< current.depth<< " F(n)=g(n)+h(n)= "<< current.fn <<endl;
-                for (int s = 0; s < num_stacks; ++s) {
-                    cout << current.configuration[s] << endl;            //TODO: fix the depth and print the solution out correctly
-                }
-                cout << endl;*/
 
                 // goal check
                 if (checkGoalState(current.configuration)) {
-                    //TODO print out statistics, solution length, iterations, max queue size
                     int parentidx = current.parentidx;
                     vector <State> path;
                     path.push_back(current);
+                    //loop through each parent of the goal state and push into a path vector
                     while(parentidx != -1){
                         path.push_back(parents[parentidx]);
                         parentidx = parents[parentidx].parentidx;
                     }
+                    //we reverse the path because the path is initially tracing backwards
                     reverse(path.begin(), path.end());
                     int movenum = 0;
                     for(State x: path){
@@ -253,12 +287,10 @@ int main(int argc, char *argv[]) {
                         movenum++;
                     }
                     //the cost is the path size and how many moves we made, the depth is how deep we searched into the successors to find the goal node
-                    cout <<"Solution Reached. " "# Iterations: " << iters << " Cost:  "<< path.size() << "  Depth: "<< current.depth<< "  Max queue size: "<< max_queue_size<< endl;
+                    cout <<"Solution reached using "<< functionchoice<<  ".  # Iterations: " << iters << "  Cost:  "<< path.size()-1 << "  Depth: "<< current.depth<< "  Max queue size: "<< max_queue_size<< endl;
                     return 0;
                 }
-
-                //todo add in the solution array
-                //we break because we have found a good unvisted node and will now advance to searching for the new nodes successors
+                //we break because we have found a good unvisted node and will now advance to searching for the new nodes successors in the next for loop
                 break; 
             }
         }
