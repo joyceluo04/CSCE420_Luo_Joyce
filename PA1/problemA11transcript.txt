@@ -1,0 +1,105 @@
+Problem A11 file:
+3 5 500
+>>>>>>>>>>
+ABCDE
+
+
+>>>>>>>>>>
+E
+AC
+BD
+>>>>>>>>>>
+
+Problem #: problemA11.bwp
+File read completed.
+Move # 0  Path cost: 0  Heuristic: 30962  f(n) = g(n)+h(n) = 30962
+ABCDE
+
+
+
+Move # 1  Path cost: 1  Heuristic: 5  f(n) = g(n)+h(n) = 6
+ABCD
+E
+
+
+Move # 2  Path cost: 2  Heuristic: 5  f(n) = g(n)+h(n) = 7
+ABC
+ED
+
+
+Move # 3  Path cost: 3  Heuristic: 5  f(n) = g(n)+h(n) = 8
+AB
+EDC
+
+
+Move # 4  Path cost: 4  Heuristic: 4  f(n) = g(n)+h(n) = 8
+A
+EDC
+B
+
+Move # 5  Path cost: 5  Heuristic: 4  f(n) = g(n)+h(n) = 9
+AC
+ED
+B
+
+Move # 6  Path cost: 6  Heuristic: 3  f(n) = g(n)+h(n) = 9
+AC
+E
+BD
+
+Move # 7  Path cost: 7  Heuristic: 3  f(n) = g(n)+h(n) = 10
+A
+EC
+BD
+
+Move # 8  Path cost: 8  Heuristic: 3  f(n) = g(n)+h(n) = 11
+
+ECA
+BD
+
+Move # 9  Path cost: 9  Heuristic: 3  f(n) = g(n)+h(n) = 12
+
+EC
+BDA
+
+Move # 10  Path cost: 10  Heuristic: 3  f(n) = g(n)+h(n) = 13
+
+E
+BDAC
+
+Move # 11  Path cost: 11  Heuristic: 2  f(n) = g(n)+h(n) = 13
+E
+
+BDAC
+
+Move # 12  Path cost: 12  Heuristic: 2  f(n) = g(n)+h(n) = 14
+E
+C
+BDA
+
+Move # 13  Path cost: 13  Heuristic: 2  f(n) = g(n)+h(n) = 15
+EA
+C
+BD
+
+Move # 14  Path cost: 14  Heuristic: 2  f(n) = g(n)+h(n) = 16
+EAC
+
+BD
+
+Move # 15  Path cost: 15  Heuristic: 2  f(n) = g(n)+h(n) = 17
+EA
+
+BDC
+
+Move # 16  Path cost: 16  Heuristic: 1  f(n) = g(n)+h(n) = 17
+E
+A
+BDC
+
+Move # 17  Path cost: 17  Heuristic: 0  f(n) = g(n)+h(n) = 17
+E
+AC
+BD
+
+Solution reached using heuristic.  # Iterations: 23  Cost:  17  Depth: 17  Max queue size: 110
