@@ -1,0 +1,173 @@
+Problem b20 file:
+5 10 500
+>>>>>>>>>>
+BCJ
+FH
+ADEI
+G
+
+>>>>>>>>>>
+AIJ
+CE
+FGH
+
+DB
+>>>>>>>>>>
+
+Problem #: problemB20.bwp
+File read completed.
+Move # 0  Path cost: 0  Heuristic: 28960  f(n) = g(n)+h(n) = 28960
+BCJ
+FH
+ADEI
+G
+
+
+Move # 1  Path cost: 1  Heuristic: 10  f(n) = g(n)+h(n) = 11
+BC
+FHJ
+ADEI
+G
+
+
+Move # 2  Path cost: 2  Heuristic: 10  f(n) = g(n)+h(n) = 12
+B
+FHJC
+ADEI
+G
+
+
+Move # 3  Path cost: 3  Heuristic: 10  f(n) = g(n)+h(n) = 13
+BI
+FHJC
+ADE
+G
+
+
+Move # 4  Path cost: 4  Heuristic: 10  f(n) = g(n)+h(n) = 14
+BIE
+FHJC
+AD
+G
+
+
+Move # 5  Path cost: 5  Heuristic: 9  f(n) = g(n)+h(n) = 14
+BIE
+FHJC
+A
+G
+D
+
+Move # 6  Path cost: 6  Heuristic: 9  f(n) = g(n)+h(n) = 15
+BI
+FHJCE
+A
+G
+D
+
+Move # 7  Path cost: 7  Heuristic: 9  f(n) = g(n)+h(n) = 16
+BI
+FHJCEG
+A
+
+D
+
+Move # 8  Path cost: 8  Heuristic: 9  f(n) = g(n)+h(n) = 17
+B
+FHJCEG
+A
+I
+D
+
+Move # 9  Path cost: 9  Heuristic: 8  f(n) = g(n)+h(n) = 17
+
+FHJCEG
+A
+I
+DB
+
+Move # 10  Path cost: 10  Heuristic: 7  f(n) = g(n)+h(n) = 17
+A
+FHJCEG
+
+I
+DB
+
+Move # 11  Path cost: 11  Heuristic: 6  f(n) = g(n)+h(n) = 17
+AI
+FHJCEG
+
+
+DB
+
+Move # 12  Path cost: 12  Heuristic: 6  f(n) = g(n)+h(n) = 18
+AI
+FHJCE
+
+
+DBG
+
+Move # 13  Path cost: 13  Heuristic: 6  f(n) = g(n)+h(n) = 19
+AI
+FHJC
+
+E
+DBG
+
+Move # 14  Path cost: 14  Heuristic: 6  f(n) = g(n)+h(n) = 20
+AI
+FHJ
+
+E
+DBGC
+
+Move # 15  Path cost: 15  Heuristic: 5  f(n) = g(n)+h(n) = 20
+AIJ
+FH
+
+E
+DBGC
+
+Move # 16  Path cost: 16  Heuristic: 5  f(n) = g(n)+h(n) = 21
+AIJH
+F
+
+E
+DBGC
+
+Move # 17  Path cost: 17  Heuristic: 4  f(n) = g(n)+h(n) = 21
+AIJH
+
+F
+E
+DBGC
+
+Move # 18  Path cost: 18  Heuristic: 3  f(n) = g(n)+h(n) = 21
+AIJH
+C
+F
+E
+DBG
+
+Move # 19  Path cost: 19  Heuristic: 2  f(n) = g(n)+h(n) = 21
+AIJH
+C
+FG
+E
+DB
+
+Move # 20  Path cost: 20  Heuristic: 1  f(n) = g(n)+h(n) = 21
+AIJ
+C
+FGH
+E
+DB
+
+Move # 21  Path cost: 21  Heuristic: 0  f(n) = g(n)+h(n) = 21
+AIJ
+CE
+FGH
+
+DB
+
+Solution reached using heuristic.  # Iterations: 48  Cost:  21  Depth: 21  Max queue size: 780
