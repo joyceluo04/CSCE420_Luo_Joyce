@@ -1,0 +1,96 @@
+Problem b11 file:
+5 10 15
+>>>>>>>>>>
+
+F
+EJ
+BCHI
+ADG
+>>>>>>>>>>
+I
+
+AD
+BCHFGE
+J
+>>>>>>>>>>
+
+Problem #: problemB11.bwp
+File read completed.
+Move # 0  Path cost: 0  Heuristic: 30169  f(n) = g(n)+h(n) = 30169
+
+F
+EJ
+BCHI
+ADG
+
+Move # 1  Path cost: 1  Heuristic: 6  f(n) = g(n)+h(n) = 7
+I
+F
+EJ
+BCH
+ADG
+
+Move # 2  Path cost: 2  Heuristic: 5  f(n) = g(n)+h(n) = 7
+I
+
+EJ
+BCHF
+ADG
+
+Move # 3  Path cost: 3  Heuristic: 4  f(n) = g(n)+h(n) = 7
+I
+
+EJ
+BCHFG
+AD
+
+Move # 4  Path cost: 4  Heuristic: 4  f(n) = g(n)+h(n) = 8
+I
+
+EJ
+BCHFGD
+A
+
+Move # 5  Path cost: 5  Heuristic: 4  f(n) = g(n)+h(n) = 9
+I
+
+EJ
+BCHFGDA
+
+
+Move # 6  Path cost: 6  Heuristic: 3  f(n) = g(n)+h(n) = 9
+I
+
+E
+BCHFGDA
+J
+
+Move # 7  Path cost: 7  Heuristic: 3  f(n) = g(n)+h(n) = 10
+IE
+
+
+BCHFGDA
+J
+
+Move # 8  Path cost: 8  Heuristic: 2  f(n) = g(n)+h(n) = 10
+IE
+
+A
+BCHFGD
+J
+
+Move # 9  Path cost: 9  Heuristic: 1  f(n) = g(n)+h(n) = 10
+IE
+
+AD
+BCHFG
+J
+
+Move # 10  Path cost: 10  Heuristic: 0  f(n) = g(n)+h(n) = 10
+I
+
+AD
+BCHFGE
+J
+
+Solution reached using heuristic.  # Iterations: 10  Cost:  10  Depth: 10  Max queue size: 156
