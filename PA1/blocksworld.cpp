@@ -24,7 +24,7 @@ string stack2;
 string stack3;
 string stack4;
 string stack5;
-vector<State> outsuccessors;
+vector<State> successorsqueue;
 vector<State> parents;
 vector<State> solution;
 vector<State> visited;
@@ -49,12 +49,13 @@ int heuristicWrongBlocks(vector<string> curr, vector<string> goal) {
         else{
             maxsize = curr[i].size();
         }
-        while (correctnum < maxsize && curr[i][correctnum] == goal[i][correctnum]){
+        while ((correctnum < maxsize) && (curr[i][correctnum] == goal[i][correctnum])){
             correctnum++;
         }
         //heuristic is added depending on how many blocks in the stack are in the wrong spot vs how many are right
         //the bigger the hscore, the more off we are from the solution
-        score = score + (curr[i].size() - correctnum); 
+        int difference = curr[i].size()-correctnum;
+        score = score + difference;
     }
     return score;
 }
@@ -111,10 +112,10 @@ void successors(State* curr){
             //fn score is depth(cost)+hscore = total score
             nextState.fn = nextState.depth + nextState.heuristicscore;
             //add the successor state into the priority queue
-            outsuccessors.push_back(nextState);
+            successorsqueue.push_back(nextState);
             //track max queue size
-            if(outsuccessors.size()>max_queue_size){
-                max_queue_size = outsuccessors.size();
+            if(successorsqueue.size()>max_queue_size){
+                max_queue_size = successorsqueue.size();
             }
         }
     }
@@ -214,10 +215,15 @@ bool checkGoalState(const vector<string>& curr){
 }
 bool operator==(const State& a, const State& b) {
     //helper operator overload to check if two states configurations are equal to eachother 
-    return a.configuration == b.configuration;                    
+    if(a.configuration==b.configuration){
+        return true;
+    }
+    else{
+        return false;
+    }                   
 }
 //Function isVisited takes in the successor state we want to search and returns whether or not it has been visited inside the visited vector
-bool isVisited(const State& s, const vector<State>& visited) {
+bool checkVisited(const State& s, const vector<State>& visited) {
     //could improve by deleting from visited if we have seen the state before
     return find(visited.begin(), visited.end(), s) != visited.end();
 }
@@ -253,19 +259,19 @@ int main(int argc, char *argv[]) {
         //now sort the priority queue by lowest heuristic score
         //todo sort differently based on heuristic or bfs
         if(functionchoice == "bfs"){
-            sort(outsuccessors.begin(), outsuccessors.end(), [&](const State& a, const State& b) {
+            sort(successorsqueue.begin(), successorsqueue.end(), [&](const State& a, const State& b) {
                 return (bfs(a.configuration, allgoalstacks)+a.depth) < (bfs(b.configuration, allgoalstacks)+b.depth);
             });  
         }
         else{
-            sort(outsuccessors.begin(), outsuccessors.end(), [&](const State& a, const State& b) {
+            sort(successorsqueue.begin(), successorsqueue.end(), [&](const State& a, const State& b) {
                     return (heuristicWrongBlocks(a.configuration, allgoalstacks)) < (heuristicWrongBlocks(b.configuration, allgoalstacks));
             });
         }
         //loop through outsuccessors until we find a node that hasn't been visited
-        for (size_t i = 0; i < outsuccessors.size(); ++i) {
-            const State& newNode = outsuccessors[i];
-            if (isVisited(newNode, visited) != true) {
+        for (size_t i = 0; i < successorsqueue.size(); ++i) {
+            const State& newNode = successorsqueue[i];
+            if (checkVisited(newNode, visited) != true) {
                 //we go forward with the chosen node
                 current = newNode;
                 //track the chosen node in current
