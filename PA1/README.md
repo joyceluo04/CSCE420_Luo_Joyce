@@ -2,7 +2,7 @@
 How does my blocksworld.cpp work?
 Command Line Instructions: 
 Compile: type in make and it should compile blocksworld.cpp with a g++ compiler
-Run: ./blocksworld problemXXX.bwp [h0,h1]
+Run: ./blocksworld probXXX.bwp [h0,h1]
     -replace XXX with the problem number (A03, A04 etc.)
     -[h0,h1] is the second argument used to simulate either BFS or my heuristic
         -type in h0 for BFS, type in h1 to use the heuristic
