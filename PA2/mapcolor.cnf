@@ -1,0 +1,83 @@
+c This is the knowledge base for map coloring based on Professor Ioeger's PPT notes
+c Each region has 1 of 3 colors
+WAR WAG WAB
+NTR NTG NTB
+SAR SAG SAB 
+QR QG QB
+NSWR NSWG NSWB
+VR VG VB
+TR TG TB
+c Each region is at most 1 color
+-WAR -WAG
+-WAR -WAB
+-WAG -WAR
+-WAG -WAB
+-WAB -WAR
+-WAB -WAG
+-NTR -NTG
+-NTR -NTB
+-NTG -NTR
+-NTG -NTB
+-NTB -NTR
+-NTB -NTG
+-SAR -SAG
+-SAR -SAB
+-SAG -SAR
+-SAG -SAB
+-SAB -SAR
+-SAB -SAG
+-QR -QG
+-QR -QB
+-QG -QR
+-QG -QB
+-QB -QR
+-QB -QG
+-NSWR -NSWG
+-NSWR -NSWB
+-NSWG -NSWR
+-NSWG -NSWB
+-NSWB -NSWR
+-NSWB -NSWG
+-VR -VG
+-VR -VB
+-VG -VR
+-VG -VB
+-VB -VR
+-VB -VG
+-TR -TG
+-TR -TB
+-TG -TR
+-TG -TB
+-TB -TR
+-TB -TG
+c Adjacent states must be different colors
+-WAR -NTR
+-WAR -SAR
+-WAG -NTG
+-WAG -SAG
+-WAB -NTB
+-WAB -SAB
+-NTR -WAR
+-NTR -SAR
+-NTR -QR
+-NTG -WAG
+-NTG -SAG
+-NTG -QG
+-NTB -WAB
+-NTB -SAB
+-NTB -QB
+-SAR -WAR
+-SAR -NTR
+-SAR -QR
+-SAR -NSWR
+-SAR -VR
+-SAG -WAG
+-SAG -NTG
+-SAG -QG
+-SAG -NSWG
+-SAG -VG
+-SAB -WAB
+-SAB -NTB
+-SAB -QB
+-SAB -NSWB
+-SAB -VB
