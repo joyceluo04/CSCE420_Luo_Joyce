@@ -1,5 +1,5 @@
-c This is the knowledge base for map coloring based on Professor Ioeger's PPT notes
-c Each region has 1 of 3 colors
+# This is the knowledge base for map coloring based on Professor Ioeger's PPT notes
+# Each region has 1 of 3 colors
 WAR WAG WAB
 NTR NTG NTB
 SAR SAG SAB 
@@ -7,7 +7,7 @@ QR QG QB
 NSWR NSWG NSWB
 VR VG VB
 TR TG TB
-c Each region is at most 1 color
+# Each region is at most 1 color
 -WAR -WAG
 -WAR -WAB
 -WAG -WAR
@@ -50,7 +50,7 @@ c Each region is at most 1 color
 -TG -TB
 -TB -TR
 -TB -TG
-c Adjacent states must be different colors
+# Adjacent states must be different colors
 -WAR -NTR
 -WAR -SAR
 -WAG -NTG
@@ -81,3 +81,27 @@ c Adjacent states must be different colors
 -SAB -QB
 -SAB -NSWB
 -SAB -VB
+-QR -NTR
+-QR -SAR
+-QR -NSWR
+-QG -NTG
+-QG -SAG
+-QG -NSWG
+-QB -NTB
+-QB -SAB
+-QB -NSWB
+-NSWR -QR
+-NSWR -SAR
+-NSWR -VR
+-NSWG -QG
+-NSWG -SAG
+-NSWG -VG
+-NSWB -QB
+-NSWB -SAB
+-NSWB -VB
+-VR -NSWR
+-VR -SAR
+-VG -NSWG
+-VG -SAG
+-VB -NSWB
+-VB -SAB

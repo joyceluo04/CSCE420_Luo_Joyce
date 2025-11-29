@@ -3,153 +3,238 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include<algorithm>
+#include <algorithm>
+#include <unordered_map>
 using namespace std;
-vector<vector<int>> mapColorKB; //this is our knowledge base that stores each clause in a vector
-unordered_map<string, int> regionColorIndex = {
-    {"WAR", 1}, {"WAG", 2}, {"WAB", 3},
-    {"NTR", 4}, {"NTG", 5}, {"NTB", 6},
-    {"SAR", 7}, {"SAG", 8}, {"SAB", 9},
-    {"QR", 10}, {"QG", 11}, {"QB", 12},
-    {"NSWR", 13}, {"NSWG", 14}, {"NSWB", 15},
-    {"VR", 16}, {"VG", 17}, {"VB", 18},
-    {"TR", 19}, {"TG", 20}, {"TB", 21}
-};
-vector<int> mapColorTruthValue(22, 0); //keep it with 1-based indexing to match the map, everything starts with 0(undefined truth value)
-vector<int> backtrackOrder; //tracks the order we assigned variables in with unit clause heuristic
-//Function readfile: reads in the problem CNF file and initializes the KB vector
-void readMapColorFile(const string &filename) {
-    cout << "File: " << filename << endl;
-    //error handling in case the problem file is wrong
-    ifstream in(filename);
-    if (!in) {
-        cerr << "Error occured while reading " << filename << endl;
-        return;
-    }
-
+//GLOBAL VARIABLES 
+vector<vector<int>> mapColorKB; //This will store our map color clauses
+unordered_map<string,int> regionColorIndex = //essentially a hashmap returning the index of the truth value
+{{"WAR", 1},{"WAG", 2},{"WAB", 3},
+{"NTR", 4},{"NTG", 5},{"NTB", 6},
+{"SAR", 7},{"SAG", 8},{"SAB", 9},
+{"QR", 10},{"QG", 11},{"QB", 12},
+{"NSWR", 13},{"NSWG", 14},{"NSWB", 15},
+{"VR", 16},{"VG", 17},{"VB", 18},
+{"TR", 19},{"TG", 20},{"TB", 21}};
+vector<int> mapColorTruthValue(22,0); //intialize all truth values to 0(undefined)
+vector<int> backtrackOrder; //stores the order in which we assigned variables using unit clause heuristic
+int iters = 0; //keeps track of how many times we have looped in dpll
+//Function: readMapColorFile 
+//Purpose: Take in a cnf file and convert it into a vector of numbered clauses using the regionColorIndex map
+void readMapColorFile(string &filename){
+    ifstream in(filename); //initialize ifstream
     string line;
-    //while loop reads line by line
-    while (getline(in, line)){
-        //skip the line if empty
-        if(line.empty() == true){
+    int index;
+    while(getline(in,line)){ //while loop to grab all lines
+        if(line[0] == '#'){ //ignore comment lines
             continue;
         }
-        //in CNF files, c is used to denote a comment instead of the # that was written in the PA instructions
-        if(line[0] == 'c'){
-            continue;
+        istringstream iss(line);
+        string regionVar;
+        vector<int> clause; //this will hold the entire clause of numbers
+        while(iss>> regionVar){
+            bool isNegation = false; //tracking whether the stored index number will be pos or neg
+            if(regionVar[0] =='-'){
+                isNegation =true; //index saved must be negative to denote a negation
+                index = regionColorIndex[regionVar.substr(1)];
+            }
+            else{
+                index = regionColorIndex[regionVar];
+            }
+            if(isNegation== true){
+                clause.push_back(-index); //use neg index to track negation
+            }
+            else{
+                clause.push_back(index); //use pos index to track normal var
+            }
         }
-        else{ //If there is no c then we are on a clause line
-            std::istringstream iss(line);
-            string regionColor;
-            vector<int> clause;
-            while (iss >> regionColor) {
-                bool isNeg = false;
-
-                //If the var is a negation then keep track of it in boolean and grab the rest of the string
-                if (regionColor[0] == '-') {
-                    isNeg = true;
-                    regionColor = regionColor.substr(1);
+        mapColorKB.push_back(clause); //add the finished clause to the KB
+    }
+    cout<< "File read. Clauses saved."<< endl;
+}
+//Helper Function checkSat
+bool checkSat(const vector<int> &clause){
+    bool truthFound = false;
+    for(int var: clause){
+        if(var<0){ //negation so looking for a -1(F)
+            int truthVal = mapColorTruthValue[abs(var)];
+            if(truthVal == -1){
+                truthFound = true;
+            }
+        }
+        else if(var>0){ //not a negation so looking for a 1(T)
+            int truthVal = mapColorTruthValue[var];
+            if(truthVal == 1){
+                truthFound = true;
+            }    
+        }
+    }
+    if(truthFound){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+//Helper function checkConflict
+bool checkConflict (const vector<int> &clause){
+    int numFalse = 0;
+    for(int var: clause){
+        if(var<0){ //negation so looking for a 1(T)
+            int truthVal = mapColorTruthValue[abs(var)];
+            if(truthVal == 1){
+                numFalse++;
+            }
+        }
+        else if(var>0){ //not a negation so looking for a -1(F)
+            int truthVal = mapColorTruthValue[var];
+            if(truthVal == -1){
+                numFalse++;
+            }    
+        }
+    }
+    if(numFalse == clause.size()){
+        return true;
+    }
+    else{
+        return false;
+    }  
+}
+//Helper Function findUnitClause: loops through KB and finds a clause where 1 var is undefined and the rest are false and returns the index
+int findUnitClause(const vector<int> &clause){
+    int undefinedCount = 0;
+    int unitVar = 0;
+    for (int index : clause){
+        //get the index
+        int absindex = abs(index);
+        //get the truth value
+        int truthVal = mapColorTruthValue[absindex];
+        if(index>0 && truthVal==1 || index<0 && truthVal==-1){
+            return 0; //found a truth
+        }
+        if(truthVal == 0){
+            undefinedCount++;
+            unitVar = absindex;
+        }
+    }
+    if(undefinedCount==1){
+        return unitVar;
+    }else{
+        return 0;
+    }
+}
+//This implementation is slightly different/jank, it does not call recursively because I use a loop and search all combination branches greedily with the unit clause heuristic
+//Function dpll for map coloring: returns true if we get a solution and false if not
+bool mapColordpll(const string& given){
+    int currIndex = 1;
+    bool solutionFound = false;
+    bool conflictFound = false;
+    //initialize the first truth assignment
+    mapColorTruthValue[1] = 1;
+    backtrackOrder.push_back(1);
+    if(given != ""){
+        int index = regionColorIndex.at(given);
+        vector<int> clause; //make a clause with a single index to force variable positive
+        clause.push_back(index);
+        mapColorKB.push_back(clause);
+    }
+    while(solutionFound == false){
+        iters++;
+        conflictFound = false; //reset conflict found for every loop
+        //loop through all clauses, if conflict found then break
+        for(auto clause : mapColorKB){
+            if(checkSat(clause)){
+                continue;
+            }
+            else if(checkConflict(clause)){
+                conflictFound = true;
+                break;
+            }
+        }
+        //handle the conflict and backtrack
+        if(conflictFound){
+            while (backtrackOrder.empty()==false){
+                int last = backtrackOrder.back(); //grab the last assigned var
+                if(mapColorTruthValue[last] == 1){ //if its true then try false
+                    mapColorTruthValue[last] = -1;
+                    break;
                 }
-                //Look up the var match in the map
-                int id = regionColorIndex[regionColor];
-                //If we have negated literal then push the negative number
-                if(isNeg){
-                    clause.push_back(-id);
-                }
-                else{
-                    clause.push_back(id);
+                else if(mapColorTruthValue[last] == -1){ //if its false then pop and check the next backtracked var
+                    mapColorTruthValue[last] = 0;
+                    backtrackOrder.pop_back();
                 }
             }
-            mapColorKB.push_back(clause);
+            if(backtrackOrder.empty()){ //if theres nothing left to backtrack then no solution is found
+                return false;
+            }
         }
-        
-    }
-    cout << "File read completed." << endl;
-
-    cout << "\n=== CNF Knowledge Base ===\n";       //printing out the clauses
-    for (size_t i = 0; i < KB.size(); i++) {
-        cout << "Clause " << i+1 << ": ";
-        for (int lit : KB[i]) {
-            cout << lit << " ";
-        }
-        cout << "\n";  // DIMACS-style clause terminator
-    }
-    cout << "==========================\n\n";
-
-}
-//HELPER FUNCTIONS
-bool checkClauseSatisfaction (vector<int>& clause){
-
-}
-//Func: checkUnitClause checks to see if the clause has 1 undefined while the rest are false
-//TODO understand and fix this 
-int findUnitVar(const vector<int>& clause) {
-    int undefinedCount = 0;
-    int unitVar = 0;  // we will store the undef var index here
-
-    for (int lit : clause) {
-        int var = abs(lit);        //lit and var are the index of the truth value
-        int val = mapColorTruthValue[var];     //this is the truth value at the index
-
-        // Check if literal is TRUE
-        bool literalIsTrue =
-            (lit > 0 && val == 1) ||     // positive literal AND var=TRUE
-            (lit < 0 && val == -1);      // negative literal AND var=FALSE
-
-        if (literalIsTrue) {
-            // Clause is satisfied → NOT a unit clause
-            return 0;     //returning 0 means there was no unit literal found and clause is satisfied
-        }
-
-        // Count undefined variables
-        if (val == 0) {
-            undefinedCount++;
-            unitVar = var;  //set unitvar undef index here
-        }
-    }
-
-    // Unit clause → exactly 1 undefined var, no true literals
-    return (undefinedCount == 1 ? unitVar : 0); //if undefined count is 1 then return unitVar otherwise return 0
-}
-bool mapColordpll(string filename, string given){
-        int currIndex = 1; //tracking what variable index we are at
-        bool solutionFound = false; 
-        bool conflictFound = false;
-    if(filename.equals("mapcolor.cnf")){ //use the mapcolor KB and truth map/assignments
-        //TODO PSEUDOCODE
-        mapColorTruthValue[1] =true; //set up while loop
-        backtrackOrder.push_back(1); //we start with WAR, which is the first value
-        while (solutionFound == false){
-            loop through all the clauses{
-                if(check clause satisfaction with helper == true){
-                    continue
-                }else if (check clause conflict == true){
-                    conflictFound = true;
+        else if(conflictFound == false){ //no conflict found
+            //find the unit clause
+            bool unitClauseFound = false;
+            for(auto clause : mapColorKB){
+                int unitIndex = findUnitClause(clause);
+                if(unitIndex != 0){ //make sure the we found a unit index and that its not 0
+                    mapColorTruthValue[unitIndex] = 1; //assign the index true to go ahead and satisfy the clause
+                    backtrackOrder.push_back(unitIndex);
+                    unitClauseFound = true;
                     break;
                 }
             }
-            if( conflictFound is true ){
-                loop to check last index of backtrackOrder if its true then set it to false
-                if its false then erase the last element and loop
+            if(unitClauseFound==false){ //no unit clauses so we just pick the first unassigned variable to assign true
+                int index = 0;
+                for(auto i = 1; i < mapColorTruthValue.size(); i++){
+                    if(mapColorTruthValue[i] == 0){
+                        index = i;
+                        break;
+                    }
+                }
+                if(index == 0){
+                    solutionFound = true; //no more variables left to assign so solution is found
+                }
+                else{
+                    mapColorTruthValue[index] = 1; //assign the unit clause index to 1 for True
+                    backtrackOrder.push_back(index);
+                }
             }
-            else{ //if no conflicts found
-                if findUnitVar is not zero then
-                    nextVar = findUnitVar
-                    set unit var index to true and append it to backtrackOrder
-                else loop through mapColorTruthValue to find an index with 0 and then assign it true
-                    backtrackOrder append the index
-                    if there is no undefined value then solutionFound is true; continue;
+        }
+        if(conflictFound==false){ //last but not least check of we have found a solution
+            int numSatisfied=0;
+            for(auto clause : mapColorKB){
+                if(checkSat(clause)==true){
+                    numSatisfied++;
+                }
+            }
+            if(numSatisfied==mapColorKB.size()){
+                solutionFound = true;
             }
         }
     }
+    return true; //if we exited the while loop that means solution was found
 }
-int main(int argc, char *argv[]) {
+
+//Main Function that calls dpll
+int main(int argc, char *argv[]){
     string filename = argv[1];
-    string given = ""; // default given is empty
-    if (argc >= 3) { //if we have more than 3 elements, then we can assign a given
-        given = argv[2]; 
+    string given = "";
+    if (argc >= 3){
+        given = argv[2];
     }
-    readMapColorFile(filename);
-    //dpll(filename, given);    //send over the file name so dpll knows what map and truth vectors to use!
+    if(filename=="mapcolor.cnf"){
+        readMapColorFile(filename);
+        bool solutionFound = mapColordpll(given);
+        if(solutionFound){
+            cout << "Number of Iterations: " << iters<< endl;
+            cout << "Final Solution Assignments"<< endl;
+            for(auto x: regionColorIndex){
+                string color = x.first;
+                int index = x.second;
+                cout<< color<< ": "<< mapColorTruthValue[index]<< endl;
+            }
+        }
+        else{
+        cout <<"No solution found."<< endl;
+        }
+    }
+    //TODO 6 queens here
     return 0;
 }
