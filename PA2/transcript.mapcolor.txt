@@ -1,0 +1,28 @@
+Here is the exact output below for map coloring when running the dpll algorithm alone.
+Note: the output is out of order because we are using an unordered map.
+Sorry for the inconvinience, however the solution is correct.
+
+
+Number of Iterations: 35
+Final Solution Assignments
+NSWB: -1
+TB: -1
+TR: 1
+NSWG: 1
+TG: -1
+NSWR: -1
+QB: -1
+VB: -1
+QG: -1
+VR: 1
+QR: 1
+VG: -1
+SAB: 1
+SAG: -1
+SAR: -1
+NTB: -1
+NTG: 1
+NTR: -1
+WAB: -1
+WAG: -1
+WAR: 1
