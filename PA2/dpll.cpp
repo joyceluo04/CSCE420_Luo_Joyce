@@ -64,7 +64,7 @@ void readMapColorFile(string &filename){
     }
     cout<< "File read. Clauses saved."<< endl;
 }
-//read the clauses for 6 queens
+//read the clauses for 6 queens. This is redundant but I am now using the sixQueensIndex
 void read6queensFile(string &filename){
     ifstream in(filename); //initialize ifstream
     string line;
@@ -231,7 +231,8 @@ int findUnitClauseQueen(const vector<int> &clause){
     }
     if(undefinedCount==1){
         return unitVar;
-    }else{
+    }
+    else{
         return 0;
     }
 }
@@ -280,8 +281,7 @@ bool mapColordpll(const string& given){
                 return false;
             }
         }
-        else if(conflictFound == false){ //no conflict found
-            //find the unit clause
+        else if(conflictFound == false){ //no conflict found, we  try to find a unit clause
             bool unitClauseFound = false;
             for(auto clause : mapColorKB){
                 int unitIndex = findUnitClause(clause);
@@ -300,12 +300,12 @@ bool mapColordpll(const string& given){
                         break;
                     }
                 }
-                if(index == 0){
-                    solutionFound = true; //no more variables left to assign so solution is found
-                }
-                else{
+                if(index > 0){
                     mapColorTruthValue[index] = 1; //assign the unit clause index to 1 for True
                     backtrackOrder.push_back(index);
+                }
+                else{
+                    solutionFound = true; //no more variables left to assign so solution is found
                 }
             }
         }
@@ -387,12 +387,12 @@ bool sixQueensdpll(const string& given){
                         break;
                     }
                 }
-                if(index == 0){
-                    solutionFound = true; //no more variables left to assign so solution is found
-                }
-                else{
+                if(index>0){
                     sixQueensTruthValue[index] = 1; //assign the unit clause index to 1 for True
                     backtrackOrder.push_back(index);
+                }
+                else{
+                    solutionFound = true; //no more variables left to assign so solution is found
                 }
             }
         }
@@ -413,7 +413,7 @@ bool sixQueensdpll(const string& given){
 //Main Function that calls dpll
 int main(int argc, char *argv[]){
     string filename = argv[1];
-    string given = "";
+    string given = ""; //empty if no forced truth variable
     if (argc >= 3){
         given = argv[2];
     }
