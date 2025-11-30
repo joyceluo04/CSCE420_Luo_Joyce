@@ -246,10 +246,18 @@ bool mapColordpll(const string& given){
     mapColorTruthValue[1] = 1;
     backtrackOrder.push_back(1);
     if(given != ""){
-        int index = regionColorIndex.at(given);
-        vector<int> clause; //make a clause with a single index to force variable positive
-        clause.push_back(index);
-        mapColorKB.push_back(clause);
+        if(given[0]=='-'){
+            int index = regionColorIndex.at(given.substr(1));
+            vector<int> clause; //make a clause with a single index to force variable positive
+            clause.push_back(-index);
+            mapColorKB.push_back(clause);
+        }
+        else{
+            int index = regionColorIndex.at(given);
+            vector<int> clause; //make a clause with a single index to force variable positive
+            clause.push_back(index);
+            mapColorKB.push_back(clause);
+        }
     }
     while(solutionFound == false){
         iters++;
