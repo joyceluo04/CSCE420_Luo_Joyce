@@ -37,6 +37,7 @@ void readMapColorFile(string &filename){
     ifstream in(filename); //initialize ifstream
     string line;
     int index;
+    bool negation = false;
     while(getline(in,line)){ //while loop to grab all lines
         if(line[0] == '#'){ //ignore comment lines
             continue;
@@ -45,24 +46,19 @@ void readMapColorFile(string &filename){
         string regionVar;
         vector<int> clause; //this will hold the entire clause of numbers
         while(iss>> regionVar){
-            bool isNegation = false; //tracking whether the stored index number will be pos or neg
+            negation = false; //tracking whether the stored index number will be pos or neg
             if(regionVar[0] =='-'){
-                isNegation =true; //index saved must be negative to denote a negation
-                index = regionColorIndex[regionVar.substr(1)];
+                negation =true; //index saved must be negative to denote a negation
+                index = -(regionColorIndex[regionVar.substr(1)]);
             }
             else{
                 index = regionColorIndex[regionVar];
             }
-            if(isNegation== true){
-                clause.push_back(-index); //use neg index to track negation
-            }
-            else{
-                clause.push_back(index); //use pos index to track normal var
-            }
+            clause.push_back(index);
         }
         mapColorKB.push_back(clause); //add the finished clause to the KB
     }
-    cout<< "File read. Clauses saved."<< endl;
+    cout<< "CNF file read completed."<< endl;
 }
 //read the clauses for 6 queens. This is redundant but I am now using the sixQueensIndex
 void read6queensFile(string &filename){
@@ -80,26 +76,21 @@ void read6queensFile(string &filename){
             bool isNegation = false; //tracking whether the stored index number will be pos or neg
             if(regionVar[0] =='-'){
                 isNegation =true; //index saved must be negative to denote a negation
-                index = sixQueensIndex[regionVar.substr(1)];
+                index = -(sixQueensIndex[regionVar.substr(1)]);
             }
             else{
                 index = sixQueensIndex[regionVar];
             }
-            if(isNegation== true){
-                clause.push_back(-index); //use neg index to track negation
-            }
-            else{
-                clause.push_back(index); //use pos index to track normal var
-            }
+            clause.push_back(index); //use neg index to track negation
         }
         sixQueensKB.push_back(clause); //add the finished clause to the KB
     }
-    cout<< "File read. Clauses saved."<< endl;
+    cout<< "CNF file read completed."<< endl;
 }
 //Helper Function checkSat
 bool checkSat(const vector<int> &clause){
     bool truthFound = false;
-    for(int var: clause){
+    for(auto var: clause){
         if(var<0){ //negation so looking for a -1(F)
             int truthVal = mapColorTruthValue[abs(var)];
             if(truthVal == -1){
@@ -122,7 +113,7 @@ bool checkSat(const vector<int> &clause){
 }
 bool checkSatQueen(const vector<int> &clause){
     bool truthFound = false;
-    for(int var: clause){
+    for(auto var: clause){
         if(var<0){ //negation so looking for a -1(F)
             int truthVal = sixQueensTruthValue[abs(var)];
             if(truthVal == -1){
@@ -146,7 +137,7 @@ bool checkSatQueen(const vector<int> &clause){
 //Helper function checkConflict
 bool checkConflict(const vector<int> &clause){
     int numFalse = 0;
-    for(int var: clause){
+    for(auto var: clause){
         if(var<0){ //negation so looking for a 1(T)
             int truthVal = mapColorTruthValue[abs(var)];
             if(truthVal == 1){
@@ -169,7 +160,7 @@ bool checkConflict(const vector<int> &clause){
 }
 bool checkConflictQueen(const vector<int> &clause){
     int numFalse = 0;
-    for(int var: clause){
+    for(auto var: clause){
         if(var<0){ //negation so looking for a 1(T)
             int truthVal = sixQueensTruthValue[abs(var)];
             if(truthVal == 1){
@@ -194,15 +185,22 @@ bool checkConflictQueen(const vector<int> &clause){
 int findUnitClause(const vector<int> &clause){
     int undefinedCount = 0;
     int unitVar = 0;
-    for(int index : clause){
+    for(auto index : clause){
         //get the index
         int absindex = abs(index);
         //get the truth value
         int truthVal = mapColorTruthValue[absindex];
-        if(index>0 && truthVal==1 || index<0 && truthVal==-1){
-            return 0; //found a truth
+        if(index>0){
+            if(truthVal ==1){
+                return 0; //found a truth
+            }
         }
-        if(truthVal == 0){
+        else if(index<0){
+            if(truthVal == -1){
+                return 0; //found a truth
+            }
+        }
+        else if(truthVal == 0){
             undefinedCount++;
             unitVar = absindex;
         }
@@ -221,16 +219,23 @@ int findUnitClauseQueen(const vector<int> &clause){
         int absindex = abs(index);
         //get the truth value
         int truthVal = sixQueensTruthValue[absindex];
-        if(index>0 && truthVal==1 || index<0 && truthVal==-1){
-            return 0; //found a truth
+        if(index>0){
+            if(truthVal ==1){
+                return 0; //found a truth
+            }
         }
-        if(truthVal == 0){
+        else if(index<0){
+            if(truthVal == -1){
+                return 0; //found a truth
+            }
+        }
+        else if(truthVal == 0){
             undefinedCount++;
             unitVar = absindex;
         }
     }
     if(undefinedCount==1){
-        return unitVar;
+        return unitVar; //returns the index of the unit variable
     }
     else{
         return 0;
@@ -259,6 +264,7 @@ bool mapColordpll(const string& given){
             mapColorKB.push_back(clause);
         }
     }
+    //TODO FIX HERE
     while(solutionFound == false){
         iters++;
         conflictFound = false; //reset conflict found for every loop
@@ -275,17 +281,17 @@ bool mapColordpll(const string& given){
         //handle the conflict and backtrack
         if(conflictFound){
             while (backtrackOrder.empty()==false){
-                int last = backtrackOrder.back(); //grab the last assigned var
-                if(mapColorTruthValue[last] == 1){ //if its true then try false
-                    mapColorTruthValue[last] = -1;
+                int back = backtrackOrder.back(); //grab the last assigned var
+                if(mapColorTruthValue[back] == 1){ //if its true then try false
+                    mapColorTruthValue[back] = -1;
                     break;
                 }
-                else if(mapColorTruthValue[last] == -1){ //if its false then pop and check the next backtracked var
-                    mapColorTruthValue[last] = 0;
+                else if(mapColorTruthValue[back] == -1){ //if its false then pop and check the next backtracked var
+                    mapColorTruthValue[back] = 0;
                     backtrackOrder.pop_back();
                 }
             }
-            if(backtrackOrder.empty()){ //if theres nothing left to backtrack then no solution is found
+            if(backtrackOrder.size()==0){ //if theres nothing left to backtrack then no solution is found
                 return false;
             }
         }
@@ -301,18 +307,16 @@ bool mapColordpll(const string& given){
                 }
             }
             if(unitClauseFound==false){ //no unit clauses so we just pick the first unassigned variable to assign true
-                int index = 0;
+                bool puresymbol = false;
                 for(auto i = 1; i < mapColorTruthValue.size(); i++){
                     if(mapColorTruthValue[i] == 0){
-                        index = i;
+                        mapColorTruthValue[i] = 1; //assign the unit clause index to 1 for True
+                        backtrackOrder.push_back(i);
+                        puresymbol = true;
                         break;
                     }
                 }
-                if(index > 0){
-                    mapColorTruthValue[index] = 1; //assign the unit clause index to 1 for True
-                    backtrackOrder.push_back(index);
-                }
-                else{
+                if(puresymbol == false){
                     solutionFound = true; //no more variables left to assign so solution is found
                 }
             }
@@ -369,17 +373,17 @@ bool sixQueensdpll(const string& given){
         //handle the conflict and backtrack
         if(conflictFound){
             while (backtrackOrder.empty()==false){
-                int last = backtrackOrder.back(); //grab the last assigned var
-                if(sixQueensTruthValue[last] == 1){ //if its true then try false
-                    sixQueensTruthValue[last] = -1;
+                int back = backtrackOrder.back(); //grab the last assigned var
+                if(sixQueensTruthValue[back] == 1){ //if its true then try false
+                    sixQueensTruthValue[back] = -1;
                     break;
                 }
-                else if(sixQueensTruthValue[last] == -1){ //if its false then pop and check the next backtracked var
-                    sixQueensTruthValue[last] = 0;
+                else if(sixQueensTruthValue[back] == -1){ //if its false then pop and check the next backtracked var
+                    sixQueensTruthValue[back] = 0;
                     backtrackOrder.pop_back();
                 }
             }
-            if(backtrackOrder.empty()){ //if theres nothing left to backtrack then no solution is found
+            if(backtrackOrder.size() == 0){ //if theres nothing left to backtrack then no solution is found
                 return false;
             }
         }
@@ -396,19 +400,17 @@ bool sixQueensdpll(const string& given){
                 }
             }
             if(unitClauseFound==false){ //no unit clauses so we just pick the first unassigned variable to assign true
-                int index = 0;
+                bool puresymbol = false;
                 for(auto i = 1; i < sixQueensTruthValue.size(); i++){
                     if(sixQueensTruthValue[i] == 0){
-                        index = i;
+                        sixQueensTruthValue[i] = 1; //assign the unit clause index to 1 for True
+                        backtrackOrder.push_back(i);
+                        puresymbol = true;
                         break;
                     }
                 }
-                if(index>0){
-                    sixQueensTruthValue[index] = 1; //assign the unit clause index to 1 for True
-                    backtrackOrder.push_back(index);
-                }
-                else{
-                    solutionFound = true; //no more variables left to assign so solution is found
+                if(puresymbol == false){
+                    solutionFound = true;
                 }
             }
         }
