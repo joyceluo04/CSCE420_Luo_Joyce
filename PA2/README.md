@@ -1,6 +1,6 @@
 # csce420-fall24
 Author: Joyce Luo
-should explain how your program works (e.g. command-line arguments), and any important parameters or assumptions
+
 Implementation Details:
 This implementation of dpll is written in C++ and implemented iteratively instead of recursively in a while loop.
 The associated variables and index values are stored in an unordered map. After retrieving the index from the unordered map,
