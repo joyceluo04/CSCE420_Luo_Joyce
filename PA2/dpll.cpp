@@ -207,7 +207,8 @@ int findUnitClause(const vector<int> &clause){
     }
     if(undefinedCount==1){
         return unitVar;
-    }else{
+    }
+    else{
         return 0;
     }
 }
@@ -244,7 +245,6 @@ int findUnitClauseQueen(const vector<int> &clause){
 //This implementation is slightly different/jank, it does not call recursively because I use a loop and search all combination branches greedily with the unit clause heuristic
 //Function dpll for map coloring: returns true if we get a solution and false if not
 bool mapColordpll(const string& given){
-    int currIndex = 1;
     bool solutionFound = false;
     bool conflictFound = false;
     //initialize the first truth assignment
@@ -337,7 +337,6 @@ bool mapColordpll(const string& given){
 }
 //6 queens dpll function
 bool sixQueensdpll(const string& given){
-    int currIndex = 1;
     bool solutionFound = false;
     bool conflictFound = false;
     //initialize the first truth assignment
